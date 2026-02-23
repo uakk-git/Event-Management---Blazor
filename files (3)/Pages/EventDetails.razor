@@ -1,0 +1,78 @@
+@page "/events/{Id:int}"
+@using EventEase.Models
+@inject EventEase.Services.EventService EventService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_event?.Name ?? "Event Details") – EventEase</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading event details…</p>
+}
+else if (_event is null)
+{
+    <div class="not-found">
+        <h2>Event Not Found</h2>
+        <p>The event you're looking for doesn't exist or has been removed.</p>
+        <button class="btn btn--primary" @onclick='() => Navigation.NavigateTo("/")'>Back to Events</button>
+    </div>
+}
+else
+{
+    <div class="event-detail">
+        <button class="btn btn--back" @onclick='() => Navigation.NavigateTo("/")'>← Back</button>
+
+        <h1>@_event.Name</h1>
+
+        <div class="event-detail__info">
+            <p><strong>📅 Date:</strong> @_event.Date.ToString("dddd, MMMM dd, yyyy")</p>
+            <p><strong>📍 Location:</strong> @_event.Location</p>
+            <p><strong>👥 Capacity:</strong> @_event.AttendeesCount / @_event.Capacity registered</p>
+            <p><strong>Status:</strong>
+                @if (_event.IsAvailable)
+                {
+                    <span class="badge badge--open">Open for Registration</span>
+                }
+                else
+                {
+                    <span class="badge badge--full">Fully Booked</span>
+                }
+            </p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_event.Description))
+        {
+            <div class="event-detail__desc">
+                <h3>About This Event</h3>
+                <p>@_event.Description</p>
+            </div>
+        }
+
+        <div class="event-detail__actions">
+            @if (_event.IsAvailable)
+            {
+                <button class="btn btn--primary" @onclick="GoToRegister">Register Now</button>
+            }
+            else
+            {
+                <button class="btn btn--disabled" disabled>Fully Booked</button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Event? _event;
+    private bool _isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _event = await EventService.GetEventByIdAsync(Id);
+        _isLoading = false;
+    }
+
+    private void GoToRegister() => Navigation.NavigateTo($"/register/{Id}");
+}

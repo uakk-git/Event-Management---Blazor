@@ -1,0 +1,126 @@
+@page "/register/{EventId:int}"
+@using EventEase.Models
+@inject EventEase.Services.EventService EventService
+@inject EventEase.Services.SessionService SessionService
+@inject NavigationManager Navigation
+
+<PageTitle>Register – EventEase</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading…</p>
+}
+else if (_event is null)
+{
+    <div class="not-found">
+        <h2>Event Not Found</h2>
+        <p>This event does not exist.</p>
+        <button class="btn btn--primary" @onclick='() => Navigation.NavigateTo("/")'>Back to Events</button>
+    </div>
+}
+else if (_registrationSuccess)
+{
+    <div class="success-message">
+        <h2>🎉 Registration Successful!</h2>
+        <p>You're registered for <strong>@_event.Name</strong>.</p>
+        <p>A confirmation will be sent to <strong>@_registration.Email</strong>.</p>
+        <button class="btn btn--primary" @onclick='() => Navigation.NavigateTo("/")'>Back to Events</button>
+    </div>
+}
+else
+{
+    <div class="registration-form">
+        <button class="btn btn--back" @onclick='() => Navigation.NavigateTo($"/events/{EventId}")'>← Back</button>
+        <h2>Register for @_event.Name</h2>
+        <p>📅 @_event.Date.ToString("MMMM dd, yyyy") · 📍 @_event.Location</p>
+
+        @if (!string.IsNullOrWhiteSpace(_errorMessage))
+        {
+            <div class="alert alert--error">@_errorMessage</div>
+        }
+
+        <EditForm Model="_registration" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <InputText @bind-Value="_registration.FullName" placeholder="Jane Doe" />
+                <ValidationMessage For="() => _registration.FullName" />
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <InputText @bind-Value="_registration.Email" placeholder="jane@example.com" />
+                <ValidationMessage For="() => _registration.Email" />
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number <span class="text--muted">(optional)</span></label>
+                <InputText @bind-Value="_registration.Phone" placeholder="+1 555 000 0000" />
+                <ValidationMessage For="() => _registration.Phone" />
+            </div>
+
+            <button type="submit" class="btn btn--primary" disabled="@_isSubmitting">
+                @(_isSubmitting ? "Submitting…" : "Complete Registration")
+            </button>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter] public int EventId { get; set; }
+
+    private Event? _event;
+    private Registration _registration = new();
+    private bool _isLoading = true;
+    private bool _isSubmitting = false;
+    private bool _registrationSuccess = false;
+    private string _errorMessage = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _event = await EventService.GetEventByIdAsync(EventId);
+        _registration = new Registration { EventId = EventId };
+
+        // Pre-fill from active session
+        if (SessionService.IsLoggedIn)
+        {
+            _registration.FullName = SessionService.UserName ?? string.Empty;
+            _registration.Email    = SessionService.UserEmail ?? string.Empty;
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        _errorMessage = string.Empty;
+        _isSubmitting = true;
+
+        // Duplicate-registration guard
+        if (await EventService.IsAlreadyRegisteredAsync(_registration.Email, EventId))
+        {
+            _errorMessage = "This email is already registered for this event.";
+            _isSubmitting = false;
+            return;
+        }
+
+        var success = await EventService.RegisterForEventAsync(_registration);
+
+        if (success)
+        {
+            // Persist session
+            SessionService.StartSession(_registration.FullName, _registration.Email);
+            SessionService.AddRegistration(_registration);
+            _registrationSuccess = true;
+        }
+        else
+        {
+            _errorMessage = "Registration failed. The event may be fully booked. Please try another event.";
+        }
+
+        _isSubmitting = false;
+    }
+}

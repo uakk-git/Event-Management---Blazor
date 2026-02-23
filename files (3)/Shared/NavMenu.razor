@@ -1,0 +1,41 @@
+@inject EventEase.Services.SessionService SessionService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<nav class="navbar">
+    <div class="navbar__brand" @onclick='() => Navigation.NavigateTo("/")'>
+        🎉 EventEase
+    </div>
+
+    <ul class="navbar__links">
+        <li><NavLink href="/" Match="NavLinkMatch.All">Home</NavLink></li>
+        <li><NavLink href="/events">Events</NavLink></li>
+        <li><NavLink href="/attendance">Attendance</NavLink></li>
+    </ul>
+
+    <div class="navbar__session">
+        @if (SessionService.IsLoggedIn)
+        {
+            <span>👤 @SessionService.UserName</span>
+            <button class="btn btn--sm" @onclick="Logout">Logout</button>
+        }
+        else
+        {
+            <span class="text--muted">Not logged in</span>
+        }
+    </div>
+</nav>
+
+@code {
+    protected override void OnInitialized() =>
+        SessionService.OnSessionChanged += StateHasChanged;
+
+    private void Logout()
+    {
+        SessionService.EndSession();
+        Navigation.NavigateTo("/");
+    }
+
+    public void Dispose() =>
+        SessionService.OnSessionChanged -= StateHasChanged;
+}

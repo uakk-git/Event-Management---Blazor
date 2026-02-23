@@ -1,0 +1,59 @@
+@using EventEase.Models
+@inject EventEase.Services.EventService EventService
+
+<div class="attendance-tracker">
+    <h3>Attendance Tracker</h3>
+
+    @if (_events is null)
+    {
+        <p>Loading attendance data…</p>
+    }
+    else if (!_events.Any())
+    {
+        <p>No events found.</p>
+    }
+    else
+    {
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Registered</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ev in _events)
+                {
+                    <tr class="@(ev.IsAvailable ? "" : "row--full")">
+                        <td>@ev.Name</td>
+                        <td>@ev.Date.ToString("MMM dd, yyyy")</td>
+                        <td>@ev.AttendeesCount</td>
+                        <td>@ev.Capacity</td>
+                        <td>
+                            @if (ev.IsAvailable)
+                            {
+                                <span class="badge badge--open">Open</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge--full">Full</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<Event>? _events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _events = await EventService.GetEventsAsync();
+    }
+}

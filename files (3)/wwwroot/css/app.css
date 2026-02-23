@@ -1,0 +1,76 @@
+/* ── Reset & Base ────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; color: #333; }
+a { color: #4a6cf7; text-decoration: none; }
+
+/* ── Navbar ──────────────────────────────────────── */
+.navbar { display: flex; align-items: center; justify-content: space-between; background: #4a6cf7; color: #fff; padding: .85rem 2rem; }
+.navbar__brand { font-size: 1.4rem; font-weight: 700; cursor: pointer; }
+.navbar__links { list-style: none; display: flex; gap: 1.5rem; }
+.navbar__links a { color: #fff; font-weight: 500; }
+.navbar__links a.active { border-bottom: 2px solid #fff; }
+.navbar__session { display: flex; align-items: center; gap: .75rem; }
+
+/* ── Page layout ─────────────────────────────────── */
+.page-header { padding: 2rem 2rem .5rem; }
+.page-header h1 { font-size: 2rem; color: #4a6cf7; }
+.search-bar { padding: .5rem 2rem 1.5rem; }
+.search-bar input { width: 100%; max-width: 480px; padding: .6rem 1rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+
+/* ── Event grid ──────────────────────────────────── */
+.event-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; padding: 0 2rem 2rem; }
+
+/* ── Event card ──────────────────────────────────── */
+.event-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.08); padding: 1.25rem; display: flex; flex-direction: column; gap: .75rem; transition: transform .2s; }
+.event-card:hover { transform: translateY(-3px); }
+.event-card--full { opacity: .75; }
+.event-card__header { display: flex; justify-content: space-between; align-items: center; }
+.event-card__title { font-size: 1.1rem; font-weight: 700; color: #333; }
+.event-card__desc { color: #666; font-size: .9rem; }
+.event-card__footer { display: flex; gap: .75rem; margin-top: auto; }
+.event-card__placeholder { color: #999; font-style: italic; }
+
+/* ── Badges ──────────────────────────────────────── */
+.badge { padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+.badge--open { background: #d4edda; color: #155724; }
+.badge--full { background: #f8d7da; color: #721c24; }
+
+/* ── Buttons ─────────────────────────────────────── */
+.btn { padding: .5rem 1.1rem; border: none; border-radius: 6px; cursor: pointer; font-size: .9rem; font-weight: 600; transition: background .2s; }
+.btn--primary  { background: #4a6cf7; color: #fff; }
+.btn--primary:hover { background: #3a5ce6; }
+.btn--secondary { background: #e9ecef; color: #333; }
+.btn--secondary:hover { background: #dee2e6; }
+.btn--back  { background: transparent; color: #4a6cf7; padding: .3rem .6rem; }
+.btn--disabled { background: #ccc; color: #888; cursor: not-allowed; }
+.btn--sm { padding: .3rem .7rem; font-size: .8rem; background: rgba(255,255,255,.2); color: #fff; }
+
+/* ── Forms ───────────────────────────────────────── */
+.registration-form { max-width: 540px; margin: 2rem auto; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.form-group { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1.2rem; }
+.form-group label { font-weight: 600; font-size: .9rem; }
+.form-group input { padding: .55rem .9rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+.form-group input:focus { outline: none; border-color: #4a6cf7; }
+.validation-message { color: #c0392b; font-size: .82rem; }
+
+/* ── Alerts ──────────────────────────────────────── */
+.alert { padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+.alert--error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+/* ── Success ─────────────────────────────────────── */
+.success-message { max-width: 540px; margin: 3rem auto; text-align: center; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.success-message h2 { color: #155724; margin-bottom: 1rem; }
+
+/* ── Not found ───────────────────────────────────── */
+.not-found { text-align: center; padding: 4rem 2rem; }
+.not-found h1, .not-found h2 { color: #4a6cf7; margin-bottom: 1rem; }
+
+/* ── Attendance table ────────────────────────────── */
+.attendance-tracker { padding: 2rem; }
+.attendance-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.attendance-table th, .attendance-table td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
+.attendance-table th { background: #4a6cf7; color: #fff; font-weight: 600; }
+.row--full { background: #fff5f5; }
+
+/* ── Utilities ───────────────────────────────────── */
+.text--muted { color: #888; }

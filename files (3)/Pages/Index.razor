@@ -1,0 +1,74 @@
+@page "/"
+@using EventEase.Models
+@using EventEase.Shared
+@inject EventEase.Services.EventService EventService
+
+<PageTitle>EventEase – Home</PageTitle>
+
+<div class="page-header">
+    <h1>Upcoming Events</h1>
+    <p class="text--muted">Browse and register for upcoming corporate and social events.</p>
+</div>
+
+<div class="search-bar">
+    <input type="text"
+           placeholder="Search events by name or location…"
+           @bind="_searchQuery"
+           @bind:event="oninput"
+           @oninput="OnSearchInput" />
+</div>
+
+@if (_isLoading)
+{
+    <p>Loading events…</p>
+}
+else if (_events is null || !_events.Any())
+{
+    <p>No events found matching your search.</p>
+}
+else
+{
+    <div class="event-grid">
+        @foreach (var ev in _events)
+        {
+            <EventCard Event="ev" />
+        }
+    </div>
+}
+
+@code {
+    private List<Event>? _events;
+    private bool _isLoading = true;
+    private string _searchQuery = string.Empty;
+    private System.Threading.CancellationTokenSource? _cts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventsAsync();
+    }
+
+    private async Task LoadEventsAsync()
+    {
+        _isLoading = true;
+        _events = await EventService.GetEventsAsync();
+        _isLoading = false;
+    }
+
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        _searchQuery = e.Value?.ToString() ?? string.Empty;
+
+        // Debounce
+        _cts?.Cancel();
+        _cts = new System.Threading.CancellationTokenSource();
+        var token = _cts.Token;
+
+        try
+        {
+            await Task.Delay(300, token);
+            if (!token.IsCancellationRequested)
+                _events = await EventService.SearchEventsAsync(_searchQuery);
+        }
+        catch (TaskCanceledException) { /* debounce cancel – ignore */ }
+    }
+}
